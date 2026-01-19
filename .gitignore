@@ -1,0 +1,42 @@
+# Android & Gradle
+.gradle/
+/local.properties
+/.idea/
+*.iml
+*.ipr
+*.iws
+
+# Build outputs
+/build/
+**/build/
+app/build/
+
+# NDK / CMake
+.externalNativeBuild/
+.cxx/
+
+# Logs and caches
+captures/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# APKs
+*.apk
+*.ap_
+
+# Keystores (do not commit your signing keys)
+*.jks
+*.keystore
+
+# Gradle cache
+.gradle/
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+
+# Misc
+*.orig

@@ -1,0 +1,61 @@
+plugins {
+    alias(libs.plugins.android.application)
+    id 'com.google.gms.google-services'
+}
+
+android {
+    namespace 'tr.edu.atauni.yeniproje'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "tr.edu.atauni.yeniproje"
+        minSdk 26
+        targetSdk 34  // compileSdk ile aynı tutulması best practice'dir
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // OkHttp - Network işlemleri için
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    
+    // ==================== FIREBASE DEPENDENCIES ====================
+    // Firebase BOM (Bill of Materials) - Tüm Firebase kütüphanelerinin uyumlu versiyonlarını yönetir
+    implementation platform('com.google.firebase:firebase-bom:33.7.0')
+    
+    // Firebase Analytics - Kullanıcı analitikleri ve event tracking
+    implementation 'com.google.firebase:firebase-analytics'
+    
+    // Firebase Cloud Messaging (FCM) - Push notification servisi
+    implementation 'com.google.firebase:firebase-messaging:24.1.0'
+    
+    // Firebase Firestore - Cloud veritabanı (NoSQL, gerçek zamanlı senkronizasyon)
+    // BOM kullanıldığı için versiyon belirtmeye gerek yok
+    implementation 'com.google.firebase:firebase-firestore'
+    
+    // ==================== ANDROIDX DEPENDENCIES ====================
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.activity
+    implementation libs.constraintlayout
+    implementation libs.gridlayout
+    
+    // ==================== TEST DEPENDENCIES ====================
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+}

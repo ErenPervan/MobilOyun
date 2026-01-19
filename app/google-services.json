@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "566511242243",
+    "project_id": "mobil-ae261",
+    "storage_bucket": "mobil-ae261.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:566511242243:android:d7d93fe18b3258a97d1236",
+        "android_client_info": {
+          "package_name": "tr.edu.atauni.yeniproje"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYwrwlTsE-2IPZe5fZJFHamTGA38vGAWU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
