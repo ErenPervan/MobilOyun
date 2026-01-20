@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="15dp"
+    android:background="@drawable/oyun_arkaplan_gradient">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/panel_sekli"
+        android:text="🏆 LİDER TABLOSU 🏆"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FF9800"
+        android:gravity="center"
+        android:padding="15dp"
+        android:layout_marginBottom="15dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/panel_sekli">
+
+        <TextView
+            android:id="@+id/txtSkorListesi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Yükleniyor..."
+            android:textSize="20sp"
+            android:textColor="#455A64"
+            android:fontFamily="sans-serif-medium"
+            android:lineSpacingExtra="12dp"
+            android:padding="10dp"/>
+    </ScrollView>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSkorMenu"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:text="ANA MENÜYE DÖN"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#FFF"
+        android:background="@drawable/buton_sekli"
+        android:backgroundTint="#009688"
+        android:layout_marginTop="15dp"/>
+
+</LinearLayout>

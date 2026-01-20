@@ -181,4 +181,81 @@ public class dbHelper extends SQLiteOpenHelper {
         // SELECT * ile tüm kolonları getir: ID, name, value
         return db.rawQuery("SELECT * FROM ayarlar", null);
     }
+
+    /**
+     * Genel Ayar Okuma Metodu
+     * 
+     * Belirtilen ayarın değerini döner.
+     * 
+     * @param ayarAdi Ayar ismi (örn: "isim", "zorluk", "tema")
+     * @return Ayar değeri (String), bulunamazsa boş string
+     */
+    public String ayarOku(String ayarAdi) {
+        SQLiteDatabase db = getReadableDatabase();
+        String sorgu = "SELECT value FROM ayarlar WHERE name = ?";
+        Cursor crs = db.rawQuery(sorgu, new String[]{ayarAdi});
+
+        String sonuc = "";
+        
+        if (crs != null && crs.moveToFirst()) {
+            sonuc = crs.getString(0);
+            crs.close();
+        }
+        
+        return sonuc;
+    }
+
+    /**
+     * Genel Ayar Kaydetme Metodu
+     * 
+     * Belirtilen ayarı veritabanına kaydeder veya günceller.
+     * Eğer ayar yoksa yeni kayıt oluşturur (INSERT), varsa günceller (UPDATE).
+     * 
+     * @param ayarAdi Ayar ismi (örn: "tema", "zorluk")
+     * @param deger Ayar değeri
+     */
+    public void ayarKaydet(String ayarAdi, String deger) {
+        SQLiteDatabase db = getWritableDatabase();
+        
+        // Önce ayar var mı kontrol et
+        Cursor crs = db.rawQuery("SELECT value FROM ayarlar WHERE name = ?", new String[]{ayarAdi});
+        
+        if (crs != null && crs.moveToFirst()) {
+            // Ayar mevcut, güncelle
+            db.execSQL("UPDATE ayarlar SET value = ? WHERE name = ?", new Object[]{deger, ayarAdi});
+            crs.close();
+        } else {
+            // Ayar yok, yeni kayıt oluştur
+            db.execSQL("INSERT INTO ayarlar (name, value) VALUES (?, ?)", new Object[]{ayarAdi, deger});
+            if (crs != null) crs.close();
+        }
+    }
+
+    /**
+     * Skor Kaydetme Metodu
+     * 
+     * Oyun bittiğinde kullanıcının skorunu veritabanına kaydeder.
+     * 
+     * @param kullaniciAdi Kullanıcı adı
+     * @param puan Elde edilen puan
+     */
+    public void skorKaydet(String kullaniciAdi, int puan) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("INSERT INTO skorlar (username, value) VALUES (?, ?)", 
+                   new Object[]{kullaniciAdi, puan});
+    }
+
+    /**
+     * Skorları Getirme Metodu
+     * 
+     * En yüksek skorları sıralı olarak getirir (büyükten küçüğe).
+     * 
+     * @return Skorları içeren Cursor (username, value kolonları)
+     */
+    public Cursor skorlariGetir() {
+        SQLiteDatabase db = getReadableDatabase();
+        // ORDER BY value DESC: Skorları büyükten küçüğe sırala
+        // LIMIT 10: En iyi 10 skoru getir
+        return db.rawQuery("SELECT username, value FROM skorlar ORDER BY value DESC LIMIT 10", null);
+    }
 }

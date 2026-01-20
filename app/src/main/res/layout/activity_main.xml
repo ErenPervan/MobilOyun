@@ -1,66 +1,232 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- 
+    ════════════════════════════════════════════════════════════════
+    ANA EKRAN LAYOUT - OYUNCU AYARLARI (MODERN UI/UX)
+    ════════════════════════════════════════════════════════════════
+    
+    TASARIM ÖZELLİKLERİ:
+    ✓ Arka plan: menu_background.jpg (tam ekran)
+    ✓ Merkezi beyaz kart: İsim, zorluk, başla butonu
+    ✓ Geri butonu: Sol üstte (beyaz ok)
+    ✓ Modern input field: Yuvarlak köşeli, kenarlıklı
+    ✓ Zorluk seçimi: Segmented button tasarımı
+    ✓ MenuActivity ile tutarlı renk paleti
+    
+    @author Senior Android UI/UX Engineer
+    ════════════════════════════════════════════════════════════════
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/menu_background"
     tools:context=".MainActivity">
 
+    <!-- ════════════════════════════════════════════════════════════════
+         GERİ BUTONU (SOL ÜST)
+         MenuActivity'ye geri dönüş için
+         ════════════════════════════════════════════════════════════════ -->
+    <ImageButton
+        android:id="@+id/btnBackToMain"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="start|top"
+        android:layout_margin="16dp"
+        android:src="@android:drawable/ic_menu_revert"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Menüye Dön"
+        android:tint="@color/white"
+        android:scaleType="centerInside"
+        android:padding="8dp"
+        android:elevation="8dp"/>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         MERKEZİ BEYAZ KART (PANEL)
+         İsim, zorluk ve başla butonunu içerir
+         ════════════════════════════════════════════════════════════════ -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:orientation="vertical"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp">
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/white_card_background"
+        android:padding="32dp"
+        android:elevation="12dp">
 
+        <!-- ════════════════════════════════════════════════════════════════
+             BAŞLIK (HOŞGELDIN METNI)
+             ════════════════════════════════════════════════════════════════ -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" OYUNA HOŞGELDİNİZ!"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:fontFamily="sans-serif-black"/>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             İSİM GİRİŞİ BÖLÜMÜ
+             ════════════════════════════════════════════════════════════════ -->
         <TextView
             android:id="@+id/bilgiTv"
-            android:layout_width="180dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lutfen Ismınızı Yazın!" />
+            android:text=" Lütfen İsminizi Yazın:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#424242"
+            android:layout_marginBottom="12dp"/>
 
+        <!-- MODERN INPUT FIELD -->
         <EditText
             android:id="@+id/isimEdtTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="İsminizi buraya yazın..."
+            android:text=""
+            android:textSize="16sp"
+            android:textColor="#212121"
+            android:textColorHint="#9E9E9E"
+            android:background="@drawable/edit_text_background"
+            android:inputType="textCapWords"
+            android:maxLines="1"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             ZORLUK SEVİYESİ BÖLÜMÜ
+             ════════════════════════════════════════════════════════════════ -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="text"
-            android:text="İsminiz" />
+            android:text=" Zorluk Seviyesi Seçin:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#424242"
+            android:layout_marginBottom="12dp"/>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <!-- ════════════════════════════════════════════════════════════════
+             RADIO GROUP - MODERN TOGGLE BUTTON STYLE
+             
+             RadioGroup, içindeki RadioButton'lardan sadece birinin seçili olmasını
+             otomatik olarak garanti eder. Kullanıcı bir butona tıkladığında:
+             1. Tıklanan buton checked (seçili) olur
+             2. Diğer tüm butonlar unchecked (seçili değil) olur
+             3. Selector devreye girer ve görsel feedback sağlar
+             ════════════════════════════════════════════════════════════════ -->
+        <RadioGroup
+            android:id="@+id/radioGroupDifficulty"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="32dp">
 
-            <Button
+            <!-- KOLAY BUTONU (RADIO BUTTON) -->
+            <RadioButton
                 android:id="@+id/kolayBtn"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="kolay" />
+                android:text="😊\nKOLAY"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/selector_difficulty_text"
+                android:background="@drawable/selector_difficulty_bg"
+                android:button="@null"
+                android:textAlignment="center"
+                android:paddingVertical="14dp"
+                android:layout_marginEnd="6dp"
+                android:elevation="2dp"/>
 
-            <Button
+            <!-- ORTA BUTONU (RADIO BUTTON) -->
+            <RadioButton
                 android:id="@+id/ortaBtn"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="orta" />
+                android:text="🤔\nORTA"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/selector_difficulty_text"
+                android:background="@drawable/selector_difficulty_bg"
+                android:button="@null"
+                android:textAlignment="center"
+                android:paddingVertical="14dp"
+                android:layout_marginStart="3dp"
+                android:layout_marginEnd="3dp"
+                android:elevation="2dp"/>
 
-            <Button
+            <!-- ZOR BUTONU (RADIO BUTTON) -->
+            <RadioButton
                 android:id="@+id/zorBtn"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="zor" />
-        </LinearLayout>
+                android:text="😈\nZOR"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/selector_difficulty_text"
+                android:background="@drawable/selector_difficulty_bg"
+                android:button="@null"
+                android:textAlignment="center"
+                android:paddingVertical="14dp"
+                android:layout_marginStart="6dp"
+                android:elevation="2dp"/>
 
+        </RadioGroup>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             OYUNA BAŞLA BUTONU
+             ════════════════════════════════════════════════════════════════ -->
         <Button
             android:id="@+id/oyunaBaslaBtn"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text=" OYUNA BAŞLA"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/buton_modern"
+            android:backgroundTint="@color/success"
+            android:elevation="8dp"
+            android:stateListAnimator="@null"/>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             ALT BİLGİ METNİ (OPSIYONEL)
+             ════════════════════════════════════════════════════════════════ -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Oyuna Başla" />
+            android:text="💡 Zorluk seçmeden oyuna başlayamazsınız"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:textStyle="italic"/>
+
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- ════════════════════════════════════════════════════════════════
+         ALT KÖŞE VERSİYON BİLGİSİ (OPSIYONEL)
+         ════════════════════════════════════════════════════════════════ -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:text="Hafıza Oyunu v1.0.0 • Atatürk Üniversitesi"
+        android:textColor="#80FFFFFF"
+        android:textSize="11sp"
+        android:layout_marginBottom="16dp"
+        android:shadowColor="#80000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"/>
+
+</FrameLayout>

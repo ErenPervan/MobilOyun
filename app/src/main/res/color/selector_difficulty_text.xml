@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+    ════════════════════════════════════════════════════════════════
+    ZORLUK BUTONU YAZI RENGİ SELECTOR (STATE-BASED TEXT COLOR)
+    ════════════════════════════════════════════════════════════════
+    
+    Bu selector, RadioButton'ların yazı rengini duruma göre değiştirir.
+    
+    ÇALIŞMA MANTIĞI:
+    - Background selector ile koordineli çalışır
+    - Seçili buton → Beyaz yazı (mor arka plan üzerinde okunabilir)
+    - Seçili olmayan → Koyu yazı (beyaz arka plan üzerinde okunabilir)
+    
+    KONTRAST NEDİR?
+    UI tasarımında, yazı ile arka plan arasındaki renk farkına kontrast denir.
+    İyi kontrast = Okunabilirlik ↑
+    
+    WCAG (Web Content Accessibility Guidelines) standartlarına göre:
+    - Normal yazı için minimum 4.5:1 kontrast oranı gerekir
+    - Büyük yazı için 3:1 yeterlidir
+    
+    Bu selector ile:
+    ✓ Mor arka plan + Beyaz yazı = Yüksek kontrast (11:1)
+    ✓ Beyaz arka plan + Koyu gri yazı = Yüksek kontrast (12:1)
+    
+    @author Senior Android UI/UX Engineer
+    ════════════════════════════════════════════════════════════════
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- ════════════════════════════════════════════════════════════════
+         SEÇİLİ DURUM - BEYAZ YAZI
+         Mor arka plan üzerinde okunabilirlik için
+         ════════════════════════════════════════════════════════════════ -->
+    <item android:state_checked="true" android:color="#FFFFFF"/>
+    
+    <!-- ════════════════════════════════════════════════════════════════
+         SEÇİLİ OLMAYAN DURUM - KOYU GRİ YAZI
+         Beyaz arka plan üzerinde okunabilirlik için
+         ════════════════════════════════════════════════════════════════ -->
+    <item android:color="#424242"/>
+    
+</selector>

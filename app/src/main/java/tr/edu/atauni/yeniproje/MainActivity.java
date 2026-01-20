@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,7 +68,10 @@ public class MainActivity extends AppCompatActivity {
     // UI Elemanları (View referansları)
     TextView bilgiTxtV;
     EditText isimTxt;
-    Button kolay, orta, zor, oynaButon;
+    RadioButton kolay, orta, zor; // RadioButton'a çevrildi (toggle görünüm için)
+    RadioGroup radioGroupDifficulty; // RadioGroup - otomatik tek seçim yönetimi
+    Button oynaButon;
+    android.widget.ImageButton btnBackToMain; // Geri butonu (Sol üst)
 
     /**
      * Bildirim İzni İçin ActivityResultLauncher
@@ -118,9 +123,14 @@ public class MainActivity extends AppCompatActivity {
         bilgiTxtV = findViewById(R.id.bilgiTv);
         isimTxt = findViewById(R.id.isimEdtTxt);
         oynaButon = findViewById(R.id.oyunaBaslaBtn);
+        
+        // RadioGroup ve RadioButton bağlama (YENİ: Modern toggle görünüm için)
+        radioGroupDifficulty = findViewById(R.id.radioGroupDifficulty);
         kolay = findViewById(R.id.kolayBtn);
         orta = findViewById(R.id.ortaBtn);
         zor = findViewById(R.id.zorBtn);
+        
+        btnBackToMain = findViewById(R.id.btnBackToMain); // Geri butonu bağlama
 
         // ==================== VERİTABANI BAŞLATMA ====================
         // dbHelper sınıfının instance'ını oluştur
@@ -155,40 +165,74 @@ public class MainActivity extends AppCompatActivity {
             cr.close();
         }
 
-        // ==================== ZORLUK SEVİYESİ BUTONLARI ====================
+        // ==================== ZORLUK SEVİYESİ BUTONLARI (RADIO GROUP) ====================
         
-        // Başlangıç durumu: Tüm butonları varsayılan renge (mavi) ayarla
-        butonlariSifirla();
-
-        // Veritabanından okunan zorluk seviyesine göre ilgili butonu aktif (gri) yap
+        // Veritabanından okunan zorluk seviyesine göre ilgili RadioButton'ı seç
+        // RadioButton.setChecked(true) çağrıldığında:
+        // 1. O RadioButton'un state'i checked olur
+        // 2. Selector devreye girer (mor arka plan + beyaz yazı)
+        // 3. RadioGroup otomatik olarak diğer RadioButton'ları unchecked yapar
         if (seciliZorlukSeviyesi == 1) {
-            butonSec(kolay);
+            kolay.setChecked(true);
         } else if (seciliZorlukSeviyesi == 2) {
-            butonSec(orta);
+            orta.setChecked(true);
         } else if (seciliZorlukSeviyesi == 3) {
-            butonSec(zor);
+            zor.setChecked(true);
         }
 
-        // KOLAY Butonu Click Listener
-        // Lambda expression kullanılarak modern Java syntax
-        kolay.setOnClickListener(view -> {
-            seciliZorlukSeviyesi = 1; // Değişkeni güncelle
-            oyundb.zorlukSeviyesiKaydet(1); // Veritabanına kaydet
-            butonSec(kolay); // Buton renklerini güncelle (bu buton gri, diğerleri mavi)
+        // ==================== GERİ BUTONU CLICK LISTENER ====================
+        // Sol üstteki geri butonu - MenuActivity'ye dönüş
+        btnBackToMain.setOnClickListener(view -> {
+            Log.d("MainActivity", "🏠 Geri butonu tıklandı - MenuActivity'ye dönülüyor");
+            finish(); // Activity'yi kapat, doğal olarak MenuActivity'ye döner
         });
 
-        // ORTA Butonu Click Listener
-        orta.setOnClickListener(view -> {
-            seciliZorlukSeviyesi = 2;
-            oyundb.zorlukSeviyesiKaydet(2);
-            butonSec(orta);
-        });
-
-        // ZOR Butonu Click Listener
-        zor.setOnClickListener(view -> {
-            seciliZorlukSeviyesi = 3;
-            oyundb.zorlukSeviyesiKaydet(3);
-            butonSec(zor);
+        // ════════════════════════════════════════════════════════════════
+        // RADIO GROUP - ZORLUK SEÇİMİ LISTENER (YENİ: MODERN YAKLAŞIM!)
+        // ════════════════════════════════════════════════════════════════
+        // 
+        // RadioGroup.OnCheckedChangeListener:
+        // - Kullanıcı herhangi bir RadioButton'a tıkladığında tetiklenir
+        // - RadioGroup otomatik olarak diğer RadioButton'ları unchecked yapar
+        // - Selector otomatik olarak görsel feedback sağlar (mor/beyaz geçişi)
+        // 
+        // PARAMETRELER:
+        // - group: RadioGroup referansı
+        // - checkedId: Seçilen RadioButton'ın ID'si (R.id.kolayBtn, vb.)
+        // 
+        // ÖNCEKİ YAPIYLA KARŞILAŞTIRMA:
+        // ❌ Eski: 3 ayrı OnClickListener + manuel buton renk yönetimi
+        // ✅ Yeni: 1 OnCheckedChangeListener + otomatik görsel feedback
+        // 
+        radioGroupDifficulty.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // Hangi RadioButton seçildi?
+                if (checkedId == R.id.kolayBtn) {
+                    // KOLAY SEVİYE
+                    seciliZorlukSeviyesi = 1;
+                    oyundb.zorlukSeviyesiKaydet(1);
+                    Toast.makeText(MainActivity.this, "😊 Kolay seviye seçildi", Toast.LENGTH_SHORT).show();
+                    Log.d("MainActivity", "Zorluk: KOLAY (1)");
+                    
+                } else if (checkedId == R.id.ortaBtn) {
+                    // ORTA SEVİYE
+                    seciliZorlukSeviyesi = 2;
+                    oyundb.zorlukSeviyesiKaydet(2);
+                    Toast.makeText(MainActivity.this, "🤔 Orta seviye seçildi", Toast.LENGTH_SHORT).show();
+                    Log.d("MainActivity", "Zorluk: ORTA (2)");
+                    
+                } else if (checkedId == R.id.zorBtn) {
+                    // ZOR SEVİYE
+                    seciliZorlukSeviyesi = 3;
+                    oyundb.zorlukSeviyesiKaydet(3);
+                    Toast.makeText(MainActivity.this, "😈 Zor seviye seçildi", Toast.LENGTH_SHORT).show();
+                    Log.d("MainActivity", "Zorluk: ZOR (3)");
+                }
+                
+                // NOT: Görsel feedback (renk değişimi) otomatik olarak selector tarafından
+                // yönetiliyor. Manuel butonSec() çağrısına gerek yok!
+            }
         });
 
         // ==================== OYUNA BAŞLA BUTONU ====================
@@ -253,36 +297,23 @@ public class MainActivity extends AppCompatActivity {
         subscribeToFCMTopic();
     }
 
-    // ==================== YARDIMCI METODLAR ====================
-
-    /**
-     * Butonları Sıfırlama Metodu
-     * 
-     * Tüm zorluk seviyesi butonlarını varsayılan renge (mavi) döndürür.
-     * Bu metot, buton seçimi yapılmadan önce tüm butonları eşitlemek için kullanılır.
-     */
-    private void butonlariSifirla() {
-        kolay.setBackgroundColor(Color.BLUE);
-        orta.setBackgroundColor(Color.BLUE);
-        zor.setBackgroundColor(Color.BLUE);
-    }
-
-    /**
-     * Buton Seçme Metodu
-     * 
-     * Parametre olarak verilen butonu gri yapar (seçili görünüm),
-     * diğer butonları mavi yapar (seçili değil görünüm).
-     * 
-     * Çalışma Mantığı:
-     * 1. Önce tüm butonları sıfırla (hepsi mavi)
-     * 2. Seçilen butonu gri yap
-     * 
-     * @param btn Seçilecek buton referansı
-     */
-    private void butonSec(Button btn) {
-        butonlariSifirla(); // Önce hepsini varsayılan renge döndür
-        btn.setBackgroundColor(Color.GRAY); // Seçili butonu gri yap
-    }
+    // ════════════════════════════════════════════════════════════════
+    // ESKİ BUTON YÖNETİM METODLARI (ARTIK GEREKLİ DEĞİL - KALDIRILDI)
+    // ════════════════════════════════════════════════════════════════
+    // 
+    // RadioGroup + Selector yapısına geçildiği için manuel buton renk yönetimi
+    // artık gerekli değil. Tüm görsel feedback XML selector tarafından otomatik
+    // olarak yönetiliyor.
+    // 
+    // ÖNCEKİ METODLAR:
+    // - butonlariSifirla() → Tüm butonları mavi yapıyordu
+    // - butonSec(Button) → Seçili butonu gri, diğerlerini mavi yapıyordu
+    // 
+    // YENİ YAPIYLA KARŞILAŞTIRMA:
+    // ❌ Eski: Manuel Color.BLUE / Color.GRAY yönetimi
+    // ✅ Yeni: XML selector (state_checked="true/false")
+    // 
+    // ════════════════════════════════════════════════════════════════
 
     // ==================== FIREBASE İŞLEMLERİ ====================
 

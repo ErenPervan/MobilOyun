@@ -2,4 +2,30 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Ana Renkler -->
+    <color name="primary">#6200EE</color>
+    <color name="primary_dark">#3700B3</color>
+    <color name="accent">#03DAC5</color>
+    
+    <!-- Arkaplan Gradient Renkleri -->
+    <color name="background_start">#667eea</color>
+    <color name="background_end">#764ba2</color>
+    
+    <!-- Cam Panel Renkleri -->
+    <color name="glass_background">#40FFFFFF</color>
+    <color name="glass_stroke">#80FFFFFF</color>
+    
+    <!-- Zorluk Seviyeleri -->
+    <color name="difficulty_easy">#4CAF50</color>
+    <color name="difficulty_medium">#FF9800</color>
+    <color name="difficulty_hard">#F44336</color>
+    
+    <!-- Metin Renkleri -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0B0B0</color>
+    
+    <!-- Diğer Renkler -->
+    <color name="success">#4CAF50</color>
+    <color name="gold">#FFD700</color>
 </resources>

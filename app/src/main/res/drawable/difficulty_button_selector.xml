@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+    ════════════════════════════════════════════════════════════════
+    ZORLUK BUTONU SELECTOR (STATE BASED DESIGN)
+    ════════════════════════════════════════════════════════════════
+    
+    Zorluk seçim butonları için state-based tasarım
+    - Seçili: Mor arka plan + Beyaz yazı
+    - Seçili değil: Gri arka plan + Koyu yazı
+    - Basılı: Hafif karartma efekti
+    
+    @author Senior Android UI/UX Engineer
+    ════════════════════════════════════════════════════════════════
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- SEÇİLİ DURUM (state_selected="true") -->
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/primary"/>
+            <corners android:radius="8dp"/>
+            <stroke android:width="0dp" android:color="@color/primary"/>
+        </shape>
+    </item>
+    
+    <!-- BASILMIŞ DURUM (state_pressed="true") -->
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#E0E0E0"/>
+            <corners android:radius="8dp"/>
+            <stroke android:width="2dp" android:color="@color/primary"/>
+        </shape>
+    </item>
+    
+    <!-- NORMAL DURUM (default) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#F5F5F5"/>
+            <corners android:radius="8dp"/>
+            <stroke android:width="2dp" android:color="#BDBDBD"/>
+        </shape>
+    </item>
+    
+</selector>

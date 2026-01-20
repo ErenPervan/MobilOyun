@@ -143,6 +143,7 @@ public class OyunActivity extends AppCompatActivity {
     GridLayout grd; // Kartların yerleştirileceği grid
     Button yenidenBaslaBtn; // Yeniden başlatma butonu
     Button anaMenuBtn; // Ana menüye dönüş butonu
+    android.widget.ImageButton btnBackToMenu; // Geri butonu (Toolbar'da) - YENİ!
     
     // ==================== TIMER DEĞİŞKENLERİ ====================
     
@@ -156,6 +157,14 @@ public class OyunActivity extends AppCompatActivity {
     int yanlisSesId; // Yanlış eşleşme ses ID'si
     int kartCevirSesId; // Kart çevirme ses ID'si
     boolean sesYuklendi = false; // Sesler yüklendi mi kontrolü
+    
+    // ==================== TEMA SİSTEMİ - DİNAMİK RESİM YÜKLEME ====================
+    
+    /**
+     * Yüklenen Tema Resimleri (Dinamik Array)
+     * Bu array, onCreate'de loadThemeImages() metodu ile doldurulur.
+     */
+    private ArrayList<Integer> loadedThemeImages = new ArrayList<>();
 
     /**
      * onSaveInstanceState() - Activity yeniden oluşturulduğunda state'i kaydet
@@ -248,9 +257,14 @@ public class OyunActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         
+        // ==================== STEP 1: LAYOUT YÜKLE (İLK SATIRDA OLMALI!) ====================
+        // setContentView EN BAŞTA çağrılmalı (UI Safety)
         setContentView(R.layout.activity_oyun);
+        
+        EdgeToEdge.enable(this);
+
+        Log.d("OyunDebug", "🎮 OyunActivity başlatılıyor...");
 
         // ==================== SES SİSTEMİNİ BAŞLAT ====================
         sesSisteminiBaslat();
@@ -264,6 +278,7 @@ public class OyunActivity extends AppCompatActivity {
         grd = findViewById(R.id.grdLytOut);
         yenidenBaslaBtn = findViewById(R.id.yenidenBaslaBtn);
         anaMenuBtn = findViewById(R.id.anaMenuBtn);
+        btnBackToMenu = findViewById(R.id.btnBackToMenu); // YENİ: Geri butonu
 
         // ==================== INTENT VERİLERİNİ AL ====================
         Intent in = getIntent();
@@ -273,23 +288,56 @@ public class OyunActivity extends AppCompatActivity {
         // Bilgi metnini güncelle
         bilgiTv.setText(oyuncuIsim + " - Hoş Geldiniz!");
         skorGuncelle(); // Skoru göster
+        
+        // ==================== DİNAMİK TEMA YÜKLEME (SİYAH EKRAN FİX!) ====================
+        // SharedPreferences'tan seçili temayı al
+        int selectedTheme = ThemeHelper.getSelectedTheme(this);
+        
+        Log.d("OyunDebug", "📋 Seçili tema: " + selectedTheme);
+        
+        // Tema prefix'ini belirle
+        String themePrefix;
+        switch (selectedTheme) {
+            case 0:
+                themePrefix = "kart";
+                Log.d("OyunDebug", "🎴 Tema: Kartlar - Prefix: 'kart'");
+                break;
+            case 1:
+                themePrefix = "hayvan";
+                Log.d("OyunDebug", "🦁 Tema: Hayvanlar - Prefix: 'hayvan'");
+                break;
+            case 2:
+                themePrefix = "icon";
+                Log.d("OyunDebug", "🎨 Tema: İkonlar - Prefix: 'icon'");
+                break;
+            default:
+                themePrefix = "kart"; // Fallback
+                Log.w("OyunDebug", "⚠️ Bilinmeyen tema, varsayılan kullanılıyor: 'kart'");
+                break;
+        }
+        
+        // Tema resimlerini dinamik olarak yükle
+        loadedThemeImages = loadThemeImages(themePrefix);
+        
+        Log.d("OyunDebug", "✅ Tema resimleri yüklendi: " + loadedThemeImages.size() + " resim");
 
         // ==================== BUTON CLICK LISTENER'LARI ====================
         
+        // YENİDEN BAŞLA BUTONU
         yenidenBaslaBtn.setOnClickListener(view -> {
             oyunuYenidenBaslat();
         });
 
+        // ANA MENÜ BUTONU (Alt toolbar'daki)
         anaMenuBtn.setOnClickListener(view -> {
-            new AlertDialog.Builder(this)
-                .setTitle("Ana Menüye Dön")
-                .setMessage("Oyunu bırakıp ana menüye dönmek istiyor musunuz?")
-                .setPositiveButton("Evet", (dialog, which) -> {
-                    durdurTimer();
-                    finish();
-                })
-                .setNegativeButton("Hayır", null)
-                .show();
+            showExitConfirmationDialog();
+        });
+        
+        // ==================== GERİ BUTONU (YENİ!) ====================
+        // Toolbar'daki geri butonu - Menüye dönüş için
+        // Kullanıcı deneyimi: Kolay erişim için sol üstte
+        btnBackToMenu.setOnClickListener(view -> {
+            showExitConfirmationDialog();
         });
 
         // ==================== STATE RESTORATION (Durum Geri Yükleme) ====================
@@ -385,6 +433,86 @@ public class OyunActivity extends AppCompatActivity {
     }
 
     /**
+     * ==================== DİNAMİK RESİM YÜKLEME METODU (SİYAH EKRAN FİX!) ====================
+     * 
+     * Tema Resimlerini Dinamik Olarak Yükleme Metodu
+     * 
+     * Bu metot, hardcoded array'ler yerine getIdentifier() kullanarak
+     * resimleri dinamik olarak yükler. Eksik resimler olsa bile çökmez!
+     * 
+     * NASIL ÇALIŞIR:
+     * 1. prefix parametresi alır (örn: "kart", "hayvan", "icon")
+     * 2. 1'den 32'ye kadar döngü çalıştırır
+     * 3. Her iterasyonda "prefix + sayı" şeklinde resim arar (örn: "kart1", "kart2")
+     * 4. Resim bulunursa ID'sini array'e ekler
+     * 5. Resim bulunamazsa (ID == 0), ATLAR ve devam eder (çökmez!)
+     * 
+     * AVANTAJLAR:
+     * - Eksik resimler varsa çökmez ✓
+     * - Logcat'te hangi resimlerin bulunduğunu gösterir ✓
+     * - Kod daha temiz (hardcoded array'ler yok) ✓
+     * 
+     * @param prefix Resim öneki ("kart", "hayvan", "icon")
+     * @return Bulunan resim ID'lerinin listesi (ArrayList<Integer>)
+     */
+    private ArrayList<Integer> loadThemeImages(String prefix) {
+        ArrayList<Integer> images = new ArrayList<>();
+        int bulunanSayisi = 0;
+        int bulunamayanSayisi = 0;
+        
+        Log.d("OyunDebug", "════════════════════════════════════════");
+        Log.d("OyunDebug", "🔄 Tema resimleri yükleniyor: " + prefix + "1-32.png");
+        Log.d("OyunDebug", "════════════════════════════════════════");
+        
+        // 1'den 32'ye kadar tüm resimleri aramaya çalış
+        for (int i = 1; i <= 32; i++) {
+            // Resim adını oluştur: "kart1", "kart2", "hayvan1", vb.
+            String imageName = prefix + i;
+            
+            // getIdentifier() ile dinamik olarak resource ID'sini bul
+            // Parametreler: (name, type, package)
+            // Dönen değer: Resource ID (int), bulunamazsa 0
+            int resId = getResources().getIdentifier(
+                imageName,              // Resim adı (örn: "kart1")
+                "drawable",             // Kaynak tipi (drawable klasöründe ara)
+                getPackageName()        // Paket adı (bu uygulamanın paketi)
+            );
+            
+            // Resim bulundu mu kontrolü
+            if (resId != 0) {
+                // ✅ Resim bulundu - listeye ekle
+                images.add(resId);
+                bulunanSayisi++;
+                Log.d("OyunDebug", "  ✅ " + imageName + ".png bulundu (ID: " + resId + ")");
+            } else {
+                // ❌ Resim bulunamadı - ATLA (crash etme!)
+                bulunamayanSayisi++;
+                Log.w("OyunDebug", "  ⚠️ " + imageName + ".png BULUNAMADI - Atlanıyor");
+            }
+        }
+        
+        Log.d("OyunDebug", "════════════════════════════════════════");
+        Log.d("OyunDebug", "📊 SONUÇ:");
+        Log.d("OyunDebug", "  ✅ Bulunan: " + bulunanSayisi + " resim");
+        Log.d("OyunDebug", "  ⚠️ Bulunamayan: " + bulunamayanSayisi + " resim");
+        Log.d("OyunDebug", "  📦 Toplam yüklenen: " + images.size() + " resim");
+        Log.d("OyunDebug", "════════════════════════════════════════");
+        
+        // GÜVENLK KONTROLÜ: Hiç resim bulunamadıysa
+        if (images.isEmpty()) {
+            Log.e("OyunDebug", "❌ HATA: Hiçbir resim bulunamadı!");
+            Log.e("OyunDebug", "Placeholder icon eklenecek...");
+            
+            // Fallback: Android'in default iconunu ekle (en azından çökmez)
+            images.add(android.R.drawable.star_big_on);
+            images.add(android.R.drawable.star_big_off);
+            images.add(android.R.drawable.ic_menu_camera);
+        }
+        
+        return images;
+    }
+
+    /**
      * Skor Güncelleme Metodu
      * 
      * Skoru UI'da gösterir ve renk değişimi efekti ekler.
@@ -429,19 +557,29 @@ public class OyunActivity extends AppCompatActivity {
         // ==================== ZORLUK SEVİYESİNE GÖRE AYARLAR ====================
         
         if (zorlukSeviyesi == 1) {
-            // KOLAY: 2x3 grid (6 kart = 3 çift)
-            satirSayisi = 2;
-            sutunSayisi = 3;
-            hataHakki = 10;
-            toplamSure = 60; // 1 dakika
-        } else if (zorlukSeviyesi == 2) {
-            // ORTA: 3x4 grid (12 kart = 6 çift)
-            satirSayisi = 3;
+            // ════════════════════════════════════════════════════════════════
+            // KOLAY: 4×4 GRID (16 KART = 8 ÇİFT)
+            // ════════════════════════════════════════════════════════════════
+            satirSayisi = 4;
             sutunSayisi = 4;
             hataHakki = 15;
             toplamSure = 90; // 1.5 dakika
+            Log.d("OyunDebug", "😊 KOLAY: 4×4 grid (16 kart, 8 çift)");
+            
+        } else if (zorlukSeviyesi == 2) {
+            // ════════════════════════════════════════════════════════════════
+            // ORTA: 6×6 GRID (36 KART = 18 ÇİFT)
+            // ════════════════════════════════════════════════════════════════
+            satirSayisi = 6;
+            sutunSayisi = 6;
+            hataHakki = 25;
+            toplamSure = 150; // 2.5 dakika
+            Log.d("OyunDebug", "🤔 ORTA: 6×6 grid (36 kart, 18 çift)");
+            
         } else if (zorlukSeviyesi == 3) {
-            // ZOR: 4x4 grid (16 kart = 8 çift) - YENİ GÜNCELLEME!
+            // ════════════════════════════════════════════════════════════════
+            // ZOR: 8×8 GRID (64 KART = 32 ÇİFT)
+            // ════════════════════════════════════════════════════════════════
             // 
             // ESKİ VERSİYON: 6×3 = 18 kart (9 çift)
             // Sorunlar:
@@ -455,12 +593,14 @@ public class OyunActivity extends AppCompatActivity {
             // ✓ Dinamik boyutlandırma ile ekrana ideal sığar
             // ✓ 4 satır → Çoğu cihazda scroll GEREKMİYOR
             // ✓ 8 çift bulmak daha dengeli ve oynanabilir
-            // ✓ ScrollView varsa bile daha az scroll gerekir
-            //
-            satirSayisi = 4;
-            sutunSayisi = 4;
-            hataHakki = 20; // 18 kartta 25'ti, 16 kartta 20 optimal
-            toplamSure = 120; // 2 dakika (süre aynı kaldı - zorluk dengelemesi)
+            // PERFORMANS NOTU:
+            // - 64 kart ekranda dinamik boyutlandırma gerektirir
+            // - kartBoyutuHesapla() metodu otomatik olarak kartları küçültür
+            satirSayisi = 8;
+            sutunSayisi = 8;
+            hataHakki = 35;
+            toplamSure = 240; // 4 dakika
+            Log.d("OyunDebug", "😈 ZOR: 8×8 grid (64 kart, 32 çift)");
         }
 
         toplamCift = (satirSayisi * sutunSayisi) / 2;
@@ -471,19 +611,54 @@ public class OyunActivity extends AppCompatActivity {
 
         int kartBoyutu = ekranGenisligindenKartBoyutuHesapla();
 
-        // ==================== KARTLARI OLUŞTUR ====================
+        // ==================== DİNAMİK TEMA RESİMLERİNİ KULLAN ====================
+        // onCreate'de yüklenen loadedThemeImages ArrayList'ini kullan
+        if (loadedThemeImages == null || loadedThemeImages.isEmpty()) {
+            Log.e("OyunDebug", "❌ HATA: Tema resimleri yüklenmemiş!");
+            Toast.makeText(this, "Resimler yüklenemedi. Lütfen uygulamayı yeniden başlatın.", 
+                Toast.LENGTH_LONG).show();
+            finish(); // Activity'yi kapat
+            return;
+        }
+        
+        Log.d("OyunDebug", "📦 Kullanılabilir resim sayısı: " + loadedThemeImages.size());
+
+        // ==================== KARTLARI OLUŞTUR (ZORLUK BAZLI SLİCİNG) ====================
         int toplamSayi = satirSayisi * sutunSayisi;
         kartlar = new Kart[toplamSayi];
 
+        // Gerekli çift sayısı (her çift için 1 resim gerekir)
+        // Kolay (2x3=6 kart): 3 çift → İlk 3 resim
+        // Orta (3x4=12 kart): 6 çift → İlk 6 resim
+        // Zor (4x4=16 kart): 8 çift → İlk 8 resim
+        int gerekliCiftSayisi = toplamSayi / 2;
+        
+        // Güvenlik kontrolü: Gerekli resim sayısı mevcut array'den fazla mı?
+        if (gerekliCiftSayisi > loadedThemeImages.size()) {
+            Log.w("OyunDebug", "⚠️ UYARI: " + gerekliCiftSayisi + " çift gerekli, ama sadece " 
+                + loadedThemeImages.size() + " resim mevcut!");
+            Log.w("OyunDebug", "Döngüsel olarak kullanılacak (modulo)");
+        }
+        
+        Log.d("OyunDebug", "🎯 Zorluk: " + zorlukSeviyesi + " → " + toplamSayi 
+            + " kart (" + gerekliCiftSayisi + " çift gerekli)");
+        
+        // Kartları oluştur
         for (int i = 0; i < toplamSayi; i++) {
-            Kart kart;
+            // Çift oluşturma mantığı: Her 2 kart aynı resmi paylaşır
+            // i=0,1 → resimIndex=0 (ilk resim)
+            // i=2,3 → resimIndex=1 (ikinci resim)
+            // i=4,5 → resimIndex=2 (üçüncü resim)
+            int resimIndex = i / 2;
             
-            if (i % 2 == 0) {
-                kart = new Kart(this, i + 100, i);
-            } else {
-                kart = new Kart(this, i + 100, i - 1);
-            }
+            // ArrayList'ten resim al (modulo ile döngüsel)
+            // Örnek: Kolay seviye 3 çift gerektirir → loadedThemeImages.get(0), get(1), get(2) kullanılır
+            int themeImageResId = loadedThemeImages.get(resimIndex % loadedThemeImages.size());
+            
+            // Kart oluştur (Constructor'a resim resource ID'si geçiliyor)
+            Kart kart = new Kart(this, i + 100, themeImageResId);
 
+            // Layout parametreleri (dinamik boyutlandırma)
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = kartBoyutu;
             params.height = kartBoyutu;
@@ -498,6 +673,9 @@ public class OyunActivity extends AppCompatActivity {
 
         kartlariKaristir();
         sureBaslat(toplamSure);
+        
+        Log.d("OyunDebug", "✅ " + toplamSayi + " kart oluşturuldu (" + gerekliCiftSayisi 
+            + " farklı resim kullanıldı)");
     }
 
     /**
@@ -761,57 +939,90 @@ public class OyunActivity extends AppCompatActivity {
      * @return Kart boyutu (piksel) - kare şeklinde (width = height)
      */
     private int ekranGenisligindenKartBoyutuHesapla() {
-        // ==================== EKRAN ÖLÇÜLERİNİ AL ====================
-        // DisplayMetrics: Android'de ekran bilgilerini almak için kullanılan API
+        // ════════════════════════════════════════════════════════════════
+        // 1️⃣ EKRAN ÖLÇÜLERİNİ AL (GENİŞLİK + YÜKSEKLİK)
+        // ════════════════════════════════════════════════════════════════
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         
-        // Ekran genişliği (piksel cinsinden)
         int ekranGenisligi = displayMetrics.widthPixels;
-        
-        // Ekran yoğunluğu (density): DP → PX dönüşümü için gerekli
-        // Örnek: density=3.0 ise 1dp = 3px (xxhdpi ekran)
+        int ekranYuksekligi = displayMetrics.heightPixels;
         float density = displayMetrics.density;
         
         Log.d("KartBoyut", "════════════════════════════════════════");
-        Log.d("KartBoyut", "📱 Ekran Genişliği: " + ekranGenisligi + "px");
+        Log.d("KartBoyut", "📱 Ekran Boyutu: " + ekranGenisligi + "×" + ekranYuksekligi + " px");
         Log.d("KartBoyut", "📊 Density: " + density + " (dpi: " + displayMetrics.densityDpi + ")");
-        Log.d("KartBoyut", "📐 Grid Yapısı: " + satirSayisi + " satır × " + sutunSayisi + " sütun");
-        Log.d("KartBoyut", "🎮 Zorluk Seviyesi: " + zorlukSeviyesi);
+        Log.d("KartBoyut", "📐 Grid: " + satirSayisi + "×" + sutunSayisi + " (" + (satirSayisi*sutunSayisi) + " kart)");
+        Log.d("KartBoyut", "🎮 Zorluk: " + zorlukSeviyesi);
         
-        // ==================== PADDING HESAPLAMA ====================
-        // Layout'un sol ve sağ padding'i (activity_oyun.xml'de tanımlı: 16dp)
-        int layoutPaddingDp = 16; // Her bir taraf için (dp cinsinden)
-        int toplamLayoutPaddingPx = (int) (layoutPaddingDp * density * 2); // Sol + Sağ
+        // ════════════════════════════════════════════════════════════════
+        // 2️⃣ KULLANILABİLİR ALANLARI HESAPLA
+        // ════════════════════════════════════════════════════════════════
         
-        Log.d("KartBoyut", "🔹 Layout Padding (toplam): " + toplamLayoutPaddingPx + "px (" + (layoutPaddingDp * 2) + "dp)");
-        
-        // ==================== KULLANILABIL GENIŞLIK ====================
-        // Padding'leri çıkardıktan sonra kartlar için kalan genişlik
+        // YATAY (GENİŞLİK) HESAPLAMA:
+        int layoutPaddingDp = 16; // Sol + Sağ padding (dp)
+        int toplamLayoutPaddingPx = (int) (layoutPaddingDp * density * 2);
         int kullanilabilirGenislik = ekranGenisligi - toplamLayoutPaddingPx;
         
-        Log.d("KartBoyut", "✅ Kullanılabilir Genişlik: " + kullanilabilirGenislik + "px");
+        // DİKEY (YÜKSEKLİK) HESAPLAMA:
+        // Toolbar + Timer Panel + Bottom Buttons + Padding'leri çıkar
+        int topToolbarYukseklik = (int) (80 * density);  // Top HUD (toolbar + timer/skor)
+        int bottomButtonsYukseklik = (int) (80 * density); // Alt butonlar
+        int dikeypaddingPx = (int) (24 * density * 2);   // Üst + Alt padding
         
-        // ==================== MARGIN HESAPLAMA ====================
-        // Her kartın etrafında margin var (GridLayout.LayoutParams: setMargins(4, 4, 4, 4))
+        int kullanilabilirYukseklik = ekranYuksekligi 
+                                     - topToolbarYukseklik 
+                                     - bottomButtonsYukseklik 
+                                     - dikeypaddingPx;
+        
+        Log.d("KartBoyut", "🔹 Kullanılabilir Genişlik: " + kullanilabilirGenislik + "px");
+        Log.d("KartBoyut", "🔹 Kullanılabilir Yükseklik: " + kullanilabilirYukseklik + "px");
+        
+        // ════════════════════════════════════════════════════════════════
+        // MARGIN HESAPLAMA
+        // ════════════════════════════════════════════════════════════════
         int kartMarginDp = 4; // Her bir taraf için margin (dp)
         int kartMarginPx = (int) (kartMarginDp * density); // Piksel'e çevir
         
-        // Toplam margin boşluğu hesaplama:
-        // Düşünelim: [margin][kart][margin][kart][margin][kart][margin]
-        // Formül: (SütunSayısı + 1) × Margin × 2 (her kart için sol+sağ)
+        Log.d("KartBoyut", "🔹 Kart Margin (her taraf): " + kartMarginPx + "px (" + kartMarginDp + "dp)");
+        
+        // ════════════════════════════════════════════════════════════════
+        // 3️⃣ MAKSIMUM KART BOYUTLARINI HESAPLA (GENİŞLİK + YÜKSEKLİK)
+        // ════════════════════════════════════════════════════════════════
+        
+        // Yatay margin boşluğu (sütunlar için)
         int toplamMarginGenislik = (sutunSayisi + 1) * kartMarginPx * 2;
         
-        Log.d("KartBoyut", "🔹 Kart Margin (her taraf): " + kartMarginPx + "px (" + kartMarginDp + "dp)");
-        Log.d("KartBoyut", "🔹 Toplam Margin Genişliği: " + toplamMarginGenislik + "px");
+        // Dikey margin boşluğu (satırlar için)
+        int toplamMarginYukseklik = (satirSayisi + 1) * kartMarginPx * 2;
         
-        // ==================== KART BOYUTU HESAPLAMA ====================
-        // ANA FORMÜL: (Kullanılabilir Genişlik - Toplam Margin) / Sütun Sayısı
-        // Bu hesaplama sayede kartlar genişliğe mükemmel sığar
-        int kartBoyutu = (kullanilabilirGenislik - toplamMarginGenislik) / sutunSayisi;
+        // Genişliğe göre maksimum kart boyutu
+        int maxKartGenisligi = (kullanilabilirGenislik - toplamMarginGenislik) / sutunSayisi;
         
-        Log.d("KartBoyut", "🎯 HESAPLANAN KART BOYUTU: " + kartBoyutu + "px");
-        Log.d("KartBoyut", "🎯 Kart Boyutu (DP): " + Math.round(kartBoyutu / density) + "dp");
+        // Yüksekliğe göre maksimum kart boyutu
+        int maxKartYuksekligi = (kullanilabilirYukseklik - toplamMarginYukseklik) / satirSayisi;
+        
+        Log.d("KartBoyut", "📊 Max Kart Genişliği: " + maxKartGenisligi + "px (" + Math.round(maxKartGenisligi/density) + "dp)");
+        Log.d("KartBoyut", "📊 Max Kart Yüksekliği: " + maxKartYuksekligi + "px (" + Math.round(maxKartYuksekligi/density) + "dp)");
+        
+        // ════════════════════════════════════════════════════════════════
+        // 4️⃣ EN KÜÇÜĞÜNÜ SEÇ (KARE KART İÇİN - "BEST FIT")
+        // ════════════════════════════════════════════════════════════════
+        // 
+        // MANTIK:
+        // Kartlar KARE olmalı (width == height)
+        // En küçük değeri seçerek hem genişliğe hem yüksekliğe sığmasını garantiliyoruz!
+        // 
+        // ÖRNEK:
+        // maxGenislik = 130px, maxYukseklik = 200px
+        // → min(130, 200) = 130px seç
+        // → Kartlar 130×130 px olur
+        // → Hem genişliğe hem yüksekliğe sığar! ✓
+        // 
+        int kartBoyutu = Math.min(maxKartGenisligi, maxKartYuksekligi);
+        
+        Log.d("KartBoyut", "🎯 FİNAL KART BOYUTU: " + kartBoyutu + "px (" + Math.round(kartBoyutu/density) + "dp)");
+        Log.d("KartBoyut", "🎯 Seçim Nedeni: " + (kartBoyutu == maxKartGenisligi ? "Genişlik sınırı" : "Yükseklik sınırı"));
         
         // ==================== GÜVENLİK KONTROLLERI ====================
         
@@ -933,62 +1144,136 @@ public class OyunActivity extends AppCompatActivity {
     }
 
     /**
-     * Oyunu Bitirme (Geliştirilmiş Skor Gösterimi + Cloud Kayıt)
+     * ==================== OYUN BİTİŞİ METODU (GÜNCELLEME!) ====================
+     * 
+     * Oyunu Bitirme Metodu
+     * 
+     * Bu metot oyun bittiğinde (kazanma veya kaybetme) çağrılır.
+     * 
+     * YENİ ÖZELLİKLER:
+     * - Timer durdurulur ✓
+     * - Skor Firestore'a kaydedilir ✓
+     * - AlertDialog gösterilir ✓
+     * - "Ana Menü" butonu ile MenuActivity'ye dönüş eklendi! ✓
+     * 
+     * @param kazandi Oyuncu kazandı mı? (true/false)
      */
     private void oyunuBitir(boolean kazandi) {
+        // Oyun bittiğini işaretle (tekrar tıklamayı engelle)
         oyunBitti = true;
         bekle = true;
+        
+        // Timer'ı durdur
         durdurTimer();
+
+        Log.d("OyunDebug", "🏁 Oyun bitti! Kazandı: " + kazandi + ", Skor: " + skor);
 
         // ==================== FIRESTORE'A SKOR KAYDET ====================
         // Oyun bittiğinde (kazanma veya kaybetme) skoru cloud'a kaydet
         saveScoreToCloud(oyuncuIsim, skor, zorlukSeviyesi);
 
+        // ==================== DIALOG MESAJINI HAZIRLA ====================
         String baslik, mesaj;
         
         if (kazandi) {
+            // ✅ KAZANMA DURUMU
             baslik = "🎉 Tebrikler!";
             int gecenSure = toplamSure - kalanSure;
-            mesaj = oyuncuIsim + ", oyunu kazandınız!\n\n" +
+            mesaj = oyuncuIsim + ", tüm kartları eşleştirdiniz!\n\n" +
                     "📊 İstatistikler:\n" +
                     "🏆 Toplam Skor: " + skor + " puan\n" +
                     "⏱️ Geçen Süre: " + gecenSure + " saniye\n" +
                     "❤️ Kalan Hak: " + hataHakki + "\n" +
-                    "🃏 Eşleşme Sayısı: " + eslesmeSayisi + "/" + toplamCift +
-                    "\n\n💾 Skorunuz cloud'a kaydedildi!";
+                    "🃏 Eşleşme: " + eslesmeSayisi + "/" + toplamCift +
+                    "\n\n💾 Skorunuz kaydedildi!";
         } else {
+            // ❌ KAYBETME DURUMU
             baslik = "😢 Oyun Bitti";
             
             if (hataHakki <= 0) {
+                // Hata hakkı bitti
                 mesaj = oyuncuIsim + ", hata hakkınız bitti!\n\n" +
-                        "🏆 Toplam Skor: " + skor + " puan\n" +
+                        "🏆 Skor: " + skor + " puan\n" +
                         "🃏 Eşleşen: " + eslesmeSayisi + "/" + toplamCift;
             } else {
+                // Süre doldu
                 mesaj = oyuncuIsim + ", süreniz doldu!\n\n" +
-                        "🏆 Toplam Skor: " + skor + " puan\n" +
+                        "🏆 Skor: " + skor + " puan\n" +
                         "🃏 Eşleşen: " + eslesmeSayisi + "/" + toplamCift;
             }
         }
 
+        // ==================== ALERTDIALOG OLUŞTUR ====================
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(baslik);
         builder.setMessage(mesaj);
-        builder.setCancelable(false);
+        builder.setCancelable(false); // Kullanıcı dışarı tıklayarak kapatamaz
 
+        // TEKRAR OYNA BUTONU
         builder.setPositiveButton("🔄 Tekrar Oyna", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                Log.d("OyunDebug", "🔄 Kullanıcı 'Tekrar Oyna' seçti");
                 oyunuYenidenBaslat();
             }
         });
 
+        // ANA MENÜ BUTONU (YENİ!)
+        // finish() çağrılarak bu Activity kapatılır ve kullanıcı MenuActivity'ye döner
         builder.setNegativeButton("🏠 Ana Menü", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                finish();
+                Log.d("OyunDebug", "🏠 Kullanıcı 'Ana Menü' seçti - Activity kapatılıyor");
+                finish(); // Activity'yi kapat, MenuActivity'ye dön
             }
         });
 
+        // Dialog'u göster
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        
+        Log.d("OyunDebug", "✅ Oyun bitişi dialog'u gösterildi");
+    }
+
+    /**
+     * ==================== ÇIKIŞ ONAY DIALOG'U (YENİ!) ====================
+     * 
+     * Oyundan Çıkış Onay Dialog'u Gösterme Metodu
+     * 
+     * Kullanıcı "Geri" butonuna veya "Ana Menü" butonuna tıkladığında
+     * bu dialog gösterilir. Yanlışlıkla oyundan çıkmayı engeller.
+     * 
+     * KULLANICI DENEYİMİ:
+     * - Açık soru: "Oyundan çıkmak istiyor musunuz?"
+     * - 2 seçenek: "Evet" (çık) veya "Hayır" (devam et)
+     * - "Evet" seçilirse: Timer durdurulur ve Activity kapatılır (finish)
+     * - "Hayır" seçilirse: Dialog kapanır, oyun devam eder
+     */
+    private void showExitConfirmationDialog() {
+        // AlertDialog Builder oluştur
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("🏠 Ana Menüye Dön");
+        builder.setMessage("Oyundan çıkmak istiyor musunuz?\n\nMevcut ilerlemeniz kaydedilmeyecek.");
+        builder.setCancelable(true); // Dışarı tıklayarak kapanabilir
+        
+        // EVET BUTONU - Oyundan çık
+        builder.setPositiveButton("Evet, Çık", (dialog, which) -> {
+            Log.d("OyunDebug", "🏠 Kullanıcı oyundan çıkıyor - Ana Menüye dönülüyor");
+            
+            // Timer'ı durdur (önemli!)
+            durdurTimer();
+            
+            // Activity'yi kapat - MenuActivity'ye dönülecek
+            finish();
+        });
+        
+        // HAYIR BUTONU - Oyuna devam et
+        builder.setNegativeButton("Hayır, Devam Et", (dialog, which) -> {
+            Log.d("OyunDebug", "▶️ Kullanıcı oyuna devam ediyor");
+            dialog.dismiss(); // Dialog'u kapat
+        });
+        
+        // Dialog'u göster
         AlertDialog dialog = builder.create();
         dialog.show();
     }

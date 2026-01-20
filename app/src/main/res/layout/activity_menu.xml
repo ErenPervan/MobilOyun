@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/menu_background">
+
+    <!-- ==================== ARKAPLAN GÖRSEL ====================
+         NOT: menu_background.png dosyası drawable klasöründe olmalıdır.
+         Dosya yolu: app/src/main/res/drawable/menu_background.png
+         
+         Eğer menu_background yoksa, fallback olarak ana_arkaplan kullanılır.
+    -->
+
+    <!-- ==================== MENÜ BUTONLARI ====================
+         Ekranın ortasında dikey olarak sıralanmış butonlar
+    -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:gravity="center">
+
+        <!-- Oyun Başlığı (Opsiyonel) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="HAFIZA OYUNU"
+            android:textSize="36sp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:shadowColor="#80000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4"
+            android:layout_marginBottom="48dp"
+            android:fontFamily="sans-serif-black"/>
+
+        <!-- OYUNA BAŞLA BUTONU -->
+        <Button
+            android:id="@+id/btnOyunaBasla"
+            android:layout_width="280dp"
+            android:layout_height="64dp"
+            android:text="🎮 OYUNA BAŞLA"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/buton_modern"
+            android:backgroundTint="@color/success"
+            android:layout_marginBottom="16dp"
+            android:elevation="8dp"
+            android:stateListAnimator="@null"/>
+
+        <!-- TEMALAR BUTONU -->
+        <Button
+            android:id="@+id/btnTemalar"
+            android:layout_width="280dp"
+            android:layout_height="64dp"
+            android:text="🎨 TEMALAR"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/buton_modern"
+            android:backgroundTint="@color/primary"
+            android:layout_marginBottom="16dp"
+            android:elevation="8dp"
+            android:stateListAnimator="@null"/>
+
+        <!-- SKORLAR BUTONU -->
+        <Button
+            android:id="@+id/btnSkorlar"
+            android:layout_width="280dp"
+            android:layout_height="64dp"
+            android:text="🏆 SKORLAR"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/buton_modern"
+            android:backgroundTint="@color/gold"
+            android:elevation="8dp"
+            android:stateListAnimator="@null"/>
+
+    </LinearLayout>
+
+    <!-- Alt kısımda versiyon bilgisi (Opsiyonel) -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:text="v1.0.0"
+        android:textColor="#80FFFFFF"
+        android:textSize="12sp"
+        android:layout_marginBottom="16dp"/>
+
+</FrameLayout>

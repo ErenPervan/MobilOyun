@@ -21,18 +21,39 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Yeniproje"
         tools:targetApi="31">
+        
+        <!-- ==================== LAUNCHER ACTIVITY (İLK EKRAN) ==================== -->
+        <!-- MenuActivity artık uygulama açıldığında ilk gösterilen ekrandır -->
+        <activity
+            android:name=".MenuActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <!-- ==================== DİĞER ACTIVITY'LER ==================== -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
         <activity
             android:name=".OyunActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:name=".AnaMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AyarlarActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SkorActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SkorTableActivity"
+            android:exported="false" />
+        
+        <!-- ==================== FIREBASE MESSAGING SERVICE ==================== -->
         <service
             android:name=".Bildirim"
             android:exported="false">

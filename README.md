@@ -1,6 +1,6 @@
-# Kart Oyunu (Android)
+# Mobil Oyun (Android)
 
-Basit ve akıcı bir hafıza eşleştirme oyunu. Kartları çevir, eşleşen çiftleri bul ve süreye karşı yarış. Proje Android Studio ile geliştirildi; modüler yapı `app` altındadır.
+Basit ve akıcı bir hafıza eşleştirme oyunu. Kartları çevir, eşleşen çiftleri bul ve süreye karşı yarış. Proje Android Studio ile geliştirildi; modüler yapı app altındadır.
 
 ## Özellikler
 - Eşleştirme temelli oyun mekaniği (kart çiftleri)
@@ -23,8 +23,8 @@ Basit ve akıcı bir hafıza eşleştirme oyunu. Kartları çevir, eşleşen çi
 
 ## Kurulum
 1. Depoyu klonlayın:
-   - HTTPS: `git clone https://github.com/ErenPervan/KartOyunu.git`
-   - SSH: `git clone git@github.com:ErenPervan/KartOyunu.git`
+  - HTTPS: https://github.com/ErenPervan/MobilOyun.git
+  - SSH: git@github.com:ErenPervan/MobilOyun.git
 2. Android Studio ile projeyi açın.
 3. Gerekli bağımlılıklar otomatik indirilecektir.
 
@@ -34,6 +34,14 @@ Basit ve akıcı bir hafıza eşleştirme oyunu. Kartları çevir, eşleşen çi
 - Testleri çalıştırma:
   - `gradlew.bat test`
 - IDE üzerinden Run ile cihaza/emülatöre çalıştırabilirsiniz.
+
+## Katkı ve Commit Mesajları
+- Commit mesajları Türkçe ve öz olmalıdır (ör. "Skor tablosu filtreleme eklendi").
+- Anlamlı başlık kullanın ve gerekirse açıklama kısmında detay verin.
+- Büyük değişikliklerde ayrı commit’ler tercih edin.
+
+## Lisans
+Bu repo eğitim ve örnek amaçlıdır. Gerektiğinde kendi lisansınızı ekleyin.
 
 ## Proje Yapısı (Kısaca)
 - `app/src/main/java/tr/edu/atauni/yeniproje/` oyun ve yardımcı sınıflar

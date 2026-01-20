@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+    ════════════════════════════════════════════════════════════════
+    ZORLUK BUTONU ARKAPLAN SELECTOR (STATE-BASED DESIGN)
+    ════════════════════════════════════════════════════════════════
+    
+    Bu selector, RadioButton'ların durumuna göre arka plan rengini değiştirir.
+    
+    ÇALIŞMA MANTIĞI:
+    - Android, RadioButton'un durumunu (state) kontrol eder
+    - Eğer state_checked="true" ise → Mor arka plan (SEÇİLİ)
+    - Eğer state_checked="false" ise → Gri kenarlık (SEÇİLİ DEĞİL)
+    
+    KULLANICI DENEYİMİ:
+    ✓ Seçili buton: Mor dolgu, beyaz yazı (dikkat çekici)
+    ✓ Seçili olmayan: Beyaz arka plan, mor kenarlık (pasif)
+    ✓ Smooth geçiş: Renk değişimi anında olur
+    
+    STATE NEDİR?
+    State, bir UI elemanının anlık durumudur. RadioButton için:
+    - state_checked="true" → Seçili (checked)
+    - state_checked="false" → Seçili değil (unchecked)
+    - state_pressed="true" → Üzerine basılı
+    - state_enabled="false" → Devre dışı
+    
+    SELECTOR NASIL ÇALIŞIR?
+    Android, yukarıdan aşağıya selector itemlerini kontrol eder.
+    İlk eşleşen state için tanımlanan şekli (shape) uygular.
+    Bu yüzden en spesifik state'ler en üstte olmalı!
+    
+    @author Senior Android UI/UX Engineer
+    ════════════════════════════════════════════════════════════════
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- ════════════════════════════════════════════════════════════════
+         SEÇİLİ DURUM (CHECKED STATE)
+         Kullanıcı bu zorluk seviyesini seçtiğinde
+         ════════════════════════════════════════════════════════════════ -->
+    <item android:state_checked="true">
+        <shape android:shape="rectangle">
+            <!-- Mor arka plan (tema ana rengi) -->
+            <solid android:color="@color/primary"/>
+            
+            <!-- Yuvarlak köşeler -->
+            <corners android:radius="12dp"/>
+            
+            <!-- İç boşluk (padding) -->
+            <padding
+                android:left="16dp"
+                android:right="16dp"
+                android:top="12dp"
+                android:bottom="12dp"/>
+        </shape>
+    </item>
+    
+    <!-- ════════════════════════════════════════════════════════════════
+         SEÇİLİ OLMAYAN DURUM (UNCHECKED STATE - DEFAULT)
+         Diğer butonlar için
+         ════════════════════════════════════════════════════════════════ -->
+    <item>
+        <shape android:shape="rectangle">
+            <!-- Beyaz arka plan -->
+            <solid android:color="#FFFFFF"/>
+            
+            <!-- Mor kenarlık (2dp kalınlık) -->
+            <stroke
+                android:width="2dp"
+                android:color="@color/primary"/>
+            
+            <!-- Yuvarlak köşeler -->
+            <corners android:radius="12dp"/>
+            
+            <!-- İç boşluk -->
+            <padding
+                android:left="16dp"
+                android:right="16dp"
+                android:top="12dp"
+                android:bottom="12dp"/>
+        </shape>
+    </item>
+    
+</selector>
