@@ -10,8 +10,10 @@ Basit ve akıcı bir hafıza eşleştirme oyunu. Kartları çevir, eşleşen çi
 
 ## Ekran Görüntüleri
 
-![ Oyun İçi Görsel](Image1.jpeg)
-![Oyun İçi Görsel](Image2.jpeg)
+![ Oyun İçi Görsel](<img width="270" height="600" alt="Screenshot_20260120_165313" src="https://github.com/user-attachments/assets/122586d7-07de-4cbd-a24b-1991e3970e7f" />
+)
+![Oyun İçi Görsel](<img width="270" height="600" alt="mobilresim2" src="https://github.com/user-attachments/assets/0fdb488d-bda9-46f5-a996-720c3acc89be" />
+)
 
 
 
