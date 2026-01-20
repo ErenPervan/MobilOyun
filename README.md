@@ -9,11 +9,9 @@ Basit ve akıcı bir hafıza eşleştirme oyunu. Kartları çevir, eşleşen çi
 - Yerel veritabanı yardımıyla skor takibi (uygulama içi)
 
 ## Ekran Görüntüleri
+<img width="270" height="600" alt="Screenshot_20260120_165313" src="https://github.com/user-attachments/assets/0607c1b4-8dd8-4388-b38b-f3c6d17fcb51" />
 
-![ Oyun İçi Görsel](<img width="270" height="600" alt="Screenshot_20260120_165313" src="https://github.com/user-attachments/assets/122586d7-07de-4cbd-a24b-1991e3970e7f" />
-)
-![Oyun İçi Görsel](<img width="270" height="600" alt="mobilresim2" src="https://github.com/user-attachments/assets/0fdb488d-bda9-46f5-a996-720c3acc89be" />
-)
+<img width="270" height="600" alt="mobilresim2" src="https://github.com/user-attachments/assets/63a3694f-c753-4b0a-a552-3bed02622ede" />
 
 
 
@@ -26,7 +24,6 @@ Basit ve akıcı bir hafıza eşleştirme oyunu. Kartları çevir, eşleşen çi
 ## Kurulum
 1. Depoyu klonlayın:
   - HTTPS: https://github.com/ErenPervan/MobilOyun.git
-  - SSH: git@github.com:ErenPervan/MobilOyun.git
 2. Android Studio ile projeyi açın.
 3. Gerekli bağımlılıklar otomatik indirilecektir.
 
